@@ -149,15 +149,16 @@ export function main(){
       // レンダリング
       renderer.render(scene, camera);
       
-      if (i++%10 === 0){
+      if (true){
         // jpg化して送信
         renderer.domElement.toBlob((blob)=>{
           socket.emit("camera", blob);
-        }, "image/jpeg", 0.7);
+          stats.end();
+          requestAnimationFrame(_loop);
+        }, "image/jpeg", 0.4);
       }
 
-      stats.end();
-      requestAnimationFrame(_loop);
+      
       //setTimeout(_loop, 50); // for debugging
     }
 

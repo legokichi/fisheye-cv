@@ -78,32 +78,41 @@ def resize(ratio:float, frame):
     return cv2.resize(frame, size)
 
 def main_thread(que):
-    dlib_detector = gen_dlib_frontal_face_detector()
-    cv_detectors = [ (filename[14:], gen_cv_detector(filename)) for filename in [
-        './haarcascade_upperbody.xml',
-        './haarcascade_fullbody.xml',
-        './haarcascade_frontalface_alt.xml',
-        './haarcascade_frontalface_alt2.xml',
-        './haarcascade_frontalface_alt_tree.xml',
-        './haarcascade_frontalface_default.xml'
-    ]]
-    
+    # dlib は自分で学習させないといけないようだ
+    # opencv 付属の人物検出器をありったけぶち込んだ
+    red = (0, 0, 255)
+    green = (0, 255, 0)
+    detectors = [
+        ("dlib",      red,   gen_dlib_frontal_face_detector()),
+        ("upperbody", green, gen_cv_detector('./haarcascade_upperbody.xml')),
+        ("fullbody",  green, gen_cv_detector('./haarcascade_fullbody.xml')),
+        ("alt",       green, gen_cv_detector('./haarcascade_frontalface_alt.xml')),
+        ("alt2",      green, gen_cv_detector('./haarcascade_frontalface_alt2.xml')),
+        ("alt_tree",  green, gen_cv_detector('./haarcascade_frontalface_alt_tree.xml')),
+        ("default",   green, gen_cv_detector('./haarcascade_frontalface_default.xml'))
+    ]
+
+    i = 0
     while True:
+        flag = i % 20 == 0
+        print(flag)
         frame = que.get() # coroutine, サーバからのデータ待ち
-        for (lt, rb) in dlib_detector(frame):
-            cv2.rectangle(frame, lt, rb, (0, 0, 255), thickness=1)
-            cv2.putText(frame, "dlib", lt, cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=(0, 0, 255))
-        for (filename, cv_detector) in cv_detectors:
-            for (lt, rb) in cv_detector(frame):
-                cv2.rectangle(frame, lt, rb, (0, 255, 0), thickness=1)
-                cv2.putText(frame, filename, lt, cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(0, 255, 0))
-        cv2.imshow('detect', resize(2/3, frame))
-        cv2.waitKey(1) # 1ms 待って imshow を描画
+        for (name, color, detector) in detectors:
+            for (lt, rb) in detector(frame):
+                if flag:
+                    cv2.rectangle(frame, lt, rb, color, thickness=1)
+                    cv2.putText(frame, name, lt, cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=color)
+        if flag:
+            cv2.imshow('detect', resize(2/3, frame))
+            cv2.waitKey(1) # 1ms 待って imshow を描画
+        i += 1
+
 
 if __name__ == "__main__":
     # スレッドとか立てる
-    print("start")
+    print("begin")
     que = queue.Queue()
     thread = threading.Thread(target=flask_thread, args=(que,))
     thread.start()
     main_thread(que)
+    print("end")
