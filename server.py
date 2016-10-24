@@ -14,10 +14,11 @@ import dlib
 import numpy as np
 from skimage import io
 from PIL import Image
+
 import threading
 import time
 import queue
-
+import sys
 
 
 
@@ -83,6 +84,8 @@ thread.start()
 
 
 detector = dlib.get_frontal_face_detector() # type: http://dlib.net/python/#dlib.fhog_object_detector
+predictor_path = "shape_predictor_68_face_landmarks.dat" # http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2 を解凍
+predictor = dlib.shape_predictor(predictor_path)
 while True:
     frame = que.get()
     print("ONDAAAAAAAAAATA!")
@@ -94,19 +97,24 @@ while True:
         #   upsample_num_times: int, >= 0
         #   adjust_threshold: float
         dets, scores, idx = detector.run(image, 0)
-        # 矩形の色
-        color = (0, 0, 255)
         s = ''
         if len(dets) > 0: # 顔画像ありと判断された場合
             print("顔がある！！！")
             for i, rect in enumerate(dets):
+                # 輪郭検出
+                shape = predictor(image, rect) # type: full_object_detection # http://dlib.net/python/#dlib.full_object_detection
+                for j, pt in enumerate(shape.parts()): # type: int, dlib.point # http://dlib.net/python/#dlib.point
+                    pt2 = shape.part((j+1) % shape.num_parts)
+                    cv2.line(frame, (pt.x, pt.y), (pt2.x, pt2.y), (0, 255, 0), thickness=1)
                 # detsが矩形, scoreはスコア、idxはサブ検出器の結果(0.0がメインで数が大きい程弱い)
                 # print rect, scores[i], idx[i]
-                cv2.rectangle(frame, (rect.left(), rect.top()), (rect.right(), rect.bottom()), color, thickness=10)
+                cv2.rectangle(frame, (rect.left(), rect.top()), (rect.right(), rect.bottom()), (0, 0, 255), thickness=1)
                 s += (str(rect.left()) + ' ' + str(rect.top()) + ' ' + str(rect.right()) + ' ' + str(rect.bottom()) + ' ')
         # 矩形が書き込まれた画像とs = 'x1 y1 x2 y2 x1 y1 x2 y2 file_name'
         # 顔が無ければ s='' が返る
-        cv2.imshow('detect', frame)
     except:
-        pass
+        print("FUUUUUUUUUUCCCCCCCCCCCKKKKKKKKK!!!!!")
+        print("Unexpected error:", sys.exc_info())
+
+    cv2.imshow('detect', frame)
     cv2.waitKey(1) # ms 待つ
