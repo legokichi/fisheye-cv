@@ -4,6 +4,7 @@ export class Detector{
   constructor(){
     this.socket = io("localhost:5000/detector");
     this.detecting = false;
+    this.last_entries = [];
   }
   check_connection(){ // Promise<void>
     const {socket} = this;
@@ -11,9 +12,10 @@ export class Detector{
       // サーバとの導通確認
       // 別になくても良い、儀式みたいなもの
       socket.emit("echo", "hi");
-      socket.on("echo", function tmp(){
+      socket.on("echo", function tmp(data){
         socket.off("echo", tmp);
-        resolve();
+        if(data === "hi") resolve();
+        else              reject();
       });
     });
   }
@@ -32,6 +34,7 @@ export class Detector{
       socket.on("human", function tmp(data){
         socket.off("human", tmp);
         that.detecting = false;
+        that.last_entries = data;
         resolve(data);
       });
     });

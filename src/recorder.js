@@ -1,9 +1,21 @@
 export class Recorder{
   constructor(stream){
-    this.stream = stream;
-    this.recorder = new MediaRecorder(this.stream, {"mimeType": 'video/webm; codecs="vp8, opus"'});
-    this.chunks = [];
-    this.recorder.ondataavailable = (ev)=>{ this.chunks.push(ev.data); };
+    this.chunks = []; // この chunk のためのクラス
+    this.recorder = new MediaRecorder(stream, {"mimeType": 'video/webm; codecs="vp8, opus"'});
+    /*
+    // こんなプロパティもあるよということでひとつ
+    this.recorder.mimeType // 
+    this.recorder.state // "inactive, recording, or paused"
+    this.recorder.stream
+    this.recorder.videoBitsPerSecond
+    this.recorder.audioBitsPerSecond;
+    */
+    this.recorder.ondataavailable = (ev)=>{
+      this.chunks.push(ev.data);
+    };
+    this.recorder.onerror = (ev)=>{
+      console.error(ev, ev.message);
+    };
   }
   start(){
     this.recorder.start();

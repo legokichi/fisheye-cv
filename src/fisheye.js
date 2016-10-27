@@ -25,7 +25,7 @@ export class Fisheye2Panorama{
       updateAngleOfView(camera, renderer, mesh);
       
       renderer.render(scene, camera); // 撮影
-      
+
       step(renderer.domElement, next);
 
     });
@@ -59,7 +59,8 @@ export class Fisheye2Panorama{
 
       step(renderer.domElement);
 
-      requestAnimationFrame(_loop);
+      //requestAnimationFrame(_loop);
+      setTimeout(_loop, 30);
     }
 
     requestAnimationFrame(_loop);
