@@ -1,4 +1,5 @@
 const io    = require("socket.io-client");
+const {cnvToBlob} = require("./util");
 
 export class Detector{
   constructor(){
@@ -25,18 +26,19 @@ export class Detector{
 
     that.detecting = true;
     
-    return new Promise((resolve, reject)=>{
       // jpg化して送信
-      cnv.toBlob((blob)=>{
+    return cnvToBlob(cnv, "image/jpeg", 0.4).then((blob)=>{
+      return new Promise((resolve, reject)=>{
+        socket.on("human", function tmp(data){
+          socket.off("human", tmp);
+          resolve(data);
+        });
         socket.emit("human", blob);
-      }, "image/jpeg", 0.4);
-
-      socket.on("human", function tmp(data){
-        socket.off("human", tmp);
-        that.detecting = false;
-        that.last_entries = data;
-        resolve(data);
       });
+    }).then((data)=>{
+      that.detecting = false;
+      that.last_entries = data;
+      return data;
     });
   }
 }

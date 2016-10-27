@@ -102,12 +102,12 @@ class gen_human_detector():
         # opencv 付属の人物検出器をありったけぶち込んだ
         self.detectors = [
             ("dlib",      gen_dlib_frontal_face_detector()),
-            #("upperbody", gen_cv_detector('./haarcascade_upperbody.xml')),
-            #("fullbody",  gen_cv_detector('./haarcascade_fullbody.xml')),
-            #("alt",       gen_cv_detector('./haarcascade_frontalface_alt.xml')),
+            ("upperbody", gen_cv_detector('./haarcascade_upperbody.xml')),
+            ("fullbody",  gen_cv_detector('./haarcascade_fullbody.xml')),
+            ("alt",       gen_cv_detector('./haarcascade_frontalface_alt.xml')),
             ("alt2",      gen_cv_detector('./haarcascade_frontalface_alt2.xml')),
-            #("alt_tree",  gen_cv_detector('./haarcascade_frontalface_alt_tree.xml')),
-            #("default",   gen_cv_detector('./haarcascade_frontalface_default.xml'))
+            ("alt_tree",  gen_cv_detector('./haarcascade_frontalface_alt_tree.xml')),
+            ("default",   gen_cv_detector('./haarcascade_frontalface_default.xml'))
         ]
     def __call__(self, frame):
         results = []

@@ -47,6 +47,16 @@ export function create_video_canvas(video, step){
 }
 
 
+export function copy(cnv){
+  const ctx = document.createElement("canvas").getContext("2d");
+  [ctx.canvas.width, ctx.canvas.height] = [cnv.width, cnv.height];
+  ctx.drawImage(cnv, 0, 0);
+  return ctx.canvas;
+}
 
 
-
+export function cnvToBlob(cnv, mimeType, qualityArgument){
+  return new Promise((resolve, reject)=>{
+    cnv.toBlob(resolve, mimeType, qualityArgument);
+  });
+}

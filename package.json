@@ -27,6 +27,7 @@
   "dependencies": {
     "fisheye2panorama": "legokichi/threejs-fisheye",
     "jquery": "^3.1.1",
+    "jszip": "^3.1.3",
     "socket.io-client": "^1.5.0",
     "stats.js": "^0.16.0",
     "three": "^0.81.2"
